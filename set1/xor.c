@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 void xor_buffers(char *buffer1, char *buffer2, size_t num_bytes) {
-  int i;
+  size_t i;
   char xor_result;
 
   for (i = 0; i < num_bytes; i++) {
