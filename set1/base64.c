@@ -7,7 +7,7 @@ char *base64chars =
 
 /* Converts 1-3 bytes to base64 */
 void convert_b64(char *bytes, unsigned int len) {
-  char c1, c2, c3, c4;
+  unsigned char c1 = 0, c2 = 0, c3 = 0, c4 = 0;
 
   if (len > 3) {
     printf("Invalid length for base64 conversion!\n");
@@ -29,8 +29,8 @@ void convert_b64(char *bytes, unsigned int len) {
     }
   }
 
-  printf("%c%c%c%c", base64chars[c1], base64chars[c2],
-                     base64chars[c3], base64chars[c4]);
+  printf("%c%c%c%c", base64chars[c1], base64chars[c2], base64chars[c3],
+         base64chars[c4]);
 
   /* printf(", %d %d %d %d", c1, c2, c3, c4); */
 }

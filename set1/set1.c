@@ -7,7 +7,7 @@ void hex2base64() {
   ssize_t read;
   ssize_t num_bytes;
   char *input_string = NULL;
-  char *bytes;
+  char *bytes = NULL;
 
   /* Clear stdin */
   scanf("\n");
@@ -60,10 +60,10 @@ void xor() {
 }
 
 int main(void) {
-  int command;
+  int command = 0;
 
   printf("Cryptopals Set 1\n");
-  while(command != 0) {
+  do {
     printf("================\n");
     printf("1. hex to base64\n");
     printf("2. xor of 2 buffers\n");
@@ -84,7 +84,7 @@ int main(void) {
     default:
       printf("Invalid command\n");
     }
-  }
+  } while(command != 0);
 
   return 0;
 }

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+// TODO
 void xor_buffers(char *buffer1, char *buffer2, size_t num_bytes) {
   size_t i;
   char xor_result;
