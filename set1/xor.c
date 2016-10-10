@@ -1,15 +1,34 @@
 #include "cryptopals.h"
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-// TODO
-void xor_buffers(char *buffer1, char *buffer2, size_t num_bytes) {
+char *xor_buffers(char *buffer1, char *buffer2, size_t num_bytes) {
   size_t i;
-  char xor_result;
+  char *out = malloc(num_bytes);
+
+  if (out == NULL) {
+    printf("xor_buffers: Error allocating memory\n");
+    return NULL;
+  }
 
   for (i = 0; i < num_bytes; i++) {
-    xor_result = (buffer1[i] ^ buffer2[i]) & 0xFF;
-    printf("%02x", xor_result);
+    out[i] = (buffer1[i] ^ buffer2[i]) & 0xFF;
   }
-  printf("\n");
+  return out;
+}
+
+char *xor_single_char(char *buffer, size_t num_bytes, char key) {
+  size_t i;
+  char *out = calloc(num_bytes,num_bytes);
+
+  if (out == NULL) {
+    printf("xor_single_char: Error allocating memory\n");
+    return NULL;
+  }
+
+  for (i = 0; i < num_bytes; i++) {
+    out[i] = (buffer[i] ^ key) & 0xFF;
+  }
+
+  return out;
 }
