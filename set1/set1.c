@@ -81,6 +81,59 @@ void single_byte_xor() {
   free(bytes);
 }
 
+void find_single_byte_xor() {
+  FILE* fp;
+  ssize_t read;
+  ssize_t num_bytes;
+  size_t length = 0;
+  char *input_string = NULL;
+  char *bytes, *result;
+  char *best_match = NULL;
+  unsigned char key;
+  float score, maxscore;
+
+  size_t line = 0, bestline;
+
+  /* struct keyscore scores[326]; // Lines counted by 'wc -l' */
+
+  fp = fopen("4.txt", "r");
+
+  if (fp == NULL) {
+    printf("Challenge 4: Could not open file!\n");
+    return;
+  }
+
+  maxscore = -1;
+  while((read = getline(&input_string, &length, fp)) && line < 400) { /* 326 lines in 4.txt */
+    num_bytes = read/2;
+    bytes = hex_to_bytes(input_string, num_bytes);
+
+    /* Brute force key to find 'most english' text */
+    for (key = 0x00; key < 0xFF; key++) {
+      result = xor_single_char(bytes, num_bytes, key);
+      score = english_similarity_score(result);
+
+      if (score > maxscore){
+        maxscore = score;
+        bestline = line;
+        free(best_match);
+        best_match = result;
+        printf("Line %lu - English text found:\n%s\nscore: %f\n", line, best_match, maxscore);
+      } else {
+        free(result);
+      }
+    }
+
+    line++;
+    free(bytes);
+  }
+
+  printf("Best match: %s\n", best_match);
+
+  free(best_match);
+  fclose(fp);
+}
+
 int main(void) {
   int command = 0;
 
@@ -90,6 +143,7 @@ int main(void) {
     printf("1. hex to base64\n");
     printf("2. xor of 2 buffers\n");
     printf("3. brute-force single key xor\n");
+    printf("4. find most-English decrypted sentence\n");
     printf("0. quit\n");
 
     scanf("%d", &command);
@@ -104,11 +158,14 @@ int main(void) {
     case 3:
       single_byte_xor();
       break;
-    case 0:
-      printf("Bye!\n");
+    case 4:
+      find_single_byte_xor();
       break;
     default:
-      printf("Invalid command\n");
+      printf("Bye!\n");
+      command = 0;
+      break;
+      /* printf("Invalid command\n"); */
     }
   } while (command != 0);
 
