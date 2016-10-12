@@ -118,7 +118,7 @@ void find_single_byte_xor() {
         bestline = line;
         free(best_match);
         best_match = result;
-        printf("Line %lu - English text found:\n%s\nscore: %f\n", line, best_match, maxscore);
+        /* printf("Line %lu - English text found:\n%s\nscore: %f\n", line, best_match, maxscore); */
       } else {
         free(result);
       }
@@ -134,6 +134,22 @@ void find_single_byte_xor() {
   fclose(fp);
 }
 
+void repeating_xor(){
+  char string[] = "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal";
+  char key[] = "ICE";
+  char *result;
+
+  result = repeating_key_xor(string, strlen(string), key, strlen(key));
+
+  printf("Result: \n");
+  for (size_t i = 0; i < strlen(string); i++) {
+    printf("%02x", (unsigned char)result[i]);
+  }
+  printf("\n");
+
+  free(result);
+}
+
 int main(void) {
   int command = 0;
 
@@ -144,9 +160,12 @@ int main(void) {
     printf("2. xor of 2 buffers\n");
     printf("3. brute-force single key xor\n");
     printf("4. find most-English decrypted sentence\n");
+    printf("5. repeating-key xor\n");
     printf("0. quit\n");
 
-    scanf("%d", &command);
+    if (scanf("%d", &command) == 0) {
+      command = 0;
+    }
 
     switch (command) {
     case 1:
@@ -160,6 +179,9 @@ int main(void) {
       break;
     case 4:
       find_single_byte_xor();
+      break;
+    case 5:
+      repeating_xor();
       break;
     default:
       printf("Bye!\n");

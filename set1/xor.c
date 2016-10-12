@@ -32,3 +32,19 @@ char *xor_single_char(char *buffer, size_t num_bytes, char key) {
 
   return out;
 }
+
+char *repeating_key_xor(char* buffer, size_t num_bytes, char* key, size_t key_size) {
+  size_t i;
+  char *out = calloc(num_bytes, num_bytes);
+
+  if (out == NULL) {
+    printf("repeating_key_xor: Error allocating memory\n");
+    return NULL;
+  }
+
+  for (i = 0; i < num_bytes; i++) {
+    out[i] = (buffer[i] ^ key[i%key_size]) & 0xFF;
+  }
+
+  return out;
+}

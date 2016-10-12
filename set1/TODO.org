@@ -1,0 +1,4 @@
+* TODO Move malloc/calloc from callee to caller
+Currently callees allocate a result-buffer and callers ~free()~ these blocks.
+This sucks for situations where buffers could be reused.
+* TODO Split cryptopals.h into separate headers
