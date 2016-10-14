@@ -2,3 +2,5 @@
 Currently callees allocate a result-buffer and callers ~free()~ these blocks.
 This sucks for situations where buffers could be reused.
 * TODO Split cryptopals.h into separate headers
+* TODO Cleanup base64-tools
+- Generate char buffer instead of printing groups of 3 characters

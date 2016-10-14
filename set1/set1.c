@@ -34,6 +34,8 @@ void xor() {
 
   free(bytes1);
   free(bytes2);
+  free(input_string1);
+  free(input_string2);
   free(result);
 }
 
@@ -131,6 +133,7 @@ void find_single_byte_xor() {
   printf("Best match: %s\n", best_match);
 
   free(best_match);
+  free(input_string);
   fclose(fp);
 }
 
