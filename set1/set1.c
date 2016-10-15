@@ -106,7 +106,7 @@ void find_single_byte_xor() {
   }
 
   maxscore = -1;
-  while((read = getline(&input_string, &length, fp)) && line < 400) { /* 326 lines in 4.txt */
+  while((read = getline(&input_string, &length, fp)) > 0 && line < 400) { /* 326 lines in 4.txt */
     num_bytes = read/2;
     bytes = hex_to_bytes(input_string, num_bytes);
 
@@ -138,8 +138,10 @@ void find_single_byte_xor() {
 }
 
 void repeating_xor(){
+  /* char string[] = "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"; */
+  /* char key[] = "ICE"; */
   char string[] = "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal";
-  char key[] = "ICE";
+  char key[] = "BERT";
   char *result;
 
   result = repeating_key_xor(string, strlen(string), key, strlen(key));
@@ -153,6 +155,28 @@ void repeating_xor(){
   free(result);
 }
 
+void break_repeating_xor() {
+  unsigned int keysize;
+  ssize_t read;
+  char *bytes, *input_string = NULL;
+  size_t length = 0;
+  FILE *fp;
+
+  fp = fopen("6.hex", "r");
+  if (fp == NULL) {
+    printf("Challenge 6: Could not open file!\n");
+    return;
+  }
+
+  read = getline(&input_string, &length, fp);
+
+  bytes = hex_to_bytes(input_string, strlen(input_string));
+
+  keysize = find_key_size(bytes, strlen(input_string)/2);
+
+  printf("Keysize: %d\n", keysize);
+}
+
 int main(void) {
   int command = 0;
 
@@ -164,6 +188,7 @@ int main(void) {
     printf("3. brute-force single key xor\n");
     printf("4. find most-English decrypted sentence\n");
     printf("5. repeating-key xor\n");
+    printf("6. break repeating-key xor\n");
     printf("0. quit\n");
 
     if (scanf("%d", &command) == 0) {
@@ -186,11 +211,13 @@ int main(void) {
     case 5:
       repeating_xor();
       break;
+    case 6:
+      break_repeating_xor();
+      break;
     default:
       printf("Bye!\n");
       command = 0;
       break;
-      /* printf("Invalid command\n"); */
     }
   } while (command != 0);
 

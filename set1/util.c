@@ -33,6 +33,17 @@ int comp_scores(const void *scorea, const void *scoreb) {
   return 0;
 }
 
+int comp_weighted_hamming(const void *x, const void *y) {
+  float a = *((float*)x);
+  float b = *((float*)y);
+
+  if (a < b)
+    return 1;
+  if (a > b)
+    return -1;
+  return 0;
+}
+
 void hex2base64() {
   size_t length = 0;
   ssize_t read;
