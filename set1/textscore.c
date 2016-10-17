@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define ALPHABET_SIZE 26 + 1 /* Spaces are also counted */
+#define ALPHABET_SIZE 27 /* Spaces are also counted */
 
 /* See table with calculations (org-mode) below */
 static float english_frequencies[ALPHABET_SIZE] = {
@@ -16,6 +16,8 @@ static float english_frequencies[ALPHABET_SIZE] = {
 
 /* static float en_sum_squares = 0.079932031; */
 static float en_sqrt_sum_squares = 0.28272253;
+
+static char letter_order[] = " etaoinshrdlcumwfgypbvkjxqz"; // From wikipedia
 
 /* Finds the index of a character in the frequency- array */
 size_t letterindex(char c) {
@@ -34,21 +36,25 @@ float english_similarity_score(char *text) {
   float sqrt_sum_squares = 0;
 
   unsigned int length = strlen(text);
+  unsigned int nonreadable = 0;
 
   /* Count letters */
   for (i = 0; i < length; i++) {
     if (isalpha(text[i])) {
       lettercount[letterindex(text[i])]++;
       alphacount++;
-    }
-    if (text[i] == ' ') {
-      lettercount[ALPHABET_SIZE-1]++;
+    } else if (isspace(text[i])) {
+      if (text[i] == ' ') {
+        lettercount[ALPHABET_SIZE-1]++;
+      }
       spacecount++;
+    } else if (!isprint(text[i])) { // If outside of readable ascii
+      nonreadable++;
     }
   }
 
   // No letters == not usable
-  if (alphacount == 0) {
+  if (alphacount == 0 || nonreadable) {
     return 0;
   }
 
@@ -66,7 +72,24 @@ float english_similarity_score(char *text) {
   sqrt_sum_squares = sqrt(sum_squares);
   similarity = sum_mults / (sqrt_sum_squares * en_sqrt_sum_squares);
 
-  return similarity;// * alphacount;
+  return similarity * (alphacount + spacecount);
+}
+
+float english_similarity_score2(char *text) {
+  unsigned int length = strlen(text);
+  unsigned int alphabet_length = strlen(letter_order);
+  unsigned int i, j;
+  float score = 0;
+
+  for (i = 0; i < length; i++) {
+    for (j = 0; j < alphabet_length; j++) {
+      if (tolower(text[i]) == letter_order[j]) {
+        score += (alphabet_length - j);
+      }
+    }
+  }
+
+  return score;
 }
 
 /* Testcase */
