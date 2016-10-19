@@ -4,3 +4,7 @@ This sucks for situations where buffers could be reused.
 * TODO Split cryptopals.h into separate headers
 * TODO Cleanup base64-tools
 - Generate char buffer instead of printing groups of 3 characters
+
+* Document blocks-array in challenge 6
+~blocks~ is a 2-dimensional array of ~num_blocks~ arrays containing ~blocksize~
+or ~keysize~ bytes

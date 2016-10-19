@@ -1,6 +1,7 @@
 #include "cryptopals.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 char *hex_to_bytes(char *input_string, unsigned int num_bytes) {
   int i;
@@ -69,4 +70,53 @@ void hex2base64() {
 
   free(input_string);
   free(bytes);
+}
+
+char **create_blocks(char *input_buffer, size_t num_bytes, size_t blocksize) {
+  unsigned int num_blocks = num_bytes/blocksize;
+  char **blocks = calloc(num_blocks,sizeof(char*));
+  if (blocks == NULL) {
+    printf("create_blocks(): Error allocating memory\n");
+    return NULL;
+  }
+
+  for (unsigned int i = 0; i < num_blocks; i++) {
+    blocks[i] = calloc(blocksize,1);
+
+    if (blocks[i] == NULL) {
+      printf("create_blocks(): Error allocating memory\n");
+      return NULL;
+    }
+  }
+
+  for (unsigned int i = 0; i < num_blocks; i++) {
+    for (unsigned int j = 0; j < blocksize; j++) {
+      blocks[i][j] = input_buffer[i*blocksize + j];
+    }
+  }
+
+  return blocks;
+}
+
+void cleanup_blocks(char **blocks, size_t num_blocks) {
+  for (unsigned int i = 0; i < num_blocks; i++) {
+    free(blocks[i]);
+  }
+
+  free(blocks);
+}
+
+/* Outputs a vector of all characters in 'position', for each block */
+char *transpose_blocks(char **blocks, size_t block_size, size_t num_blocks, size_t position) {
+  char *result = calloc(num_blocks,1);
+
+  if (position > block_size-1) {
+    printf("transpose_blocks(): invalid position!\n");
+  } else {
+    for (unsigned int i = 0; i < num_blocks; i++) {
+      result[i] = blocks[i][position];
+    }
+  }
+
+  return result;
 }

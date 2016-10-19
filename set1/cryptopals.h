@@ -23,6 +23,11 @@ unsigned int hamming_distance(char *buf1, char *buf2, size_t num_bytes);
 int comp_weighted_hamming(const void *x, const void *y);
 
 float english_similarity_score(char *text);
+float english_similarity_score2(char *text);
 int comp_scores(const void *scorea, const void *scoreb);
+
+char **create_blocks(char *input_buffer, size_t num_bytes, size_t blocksize);
+void cleanup_blocks(char **blocks, size_t num_blocks);
+char *transpose_blocks(char **blocks, size_t block_size, size_t num_blocks, size_t position);
 
 #endif

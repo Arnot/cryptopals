@@ -138,10 +138,8 @@ void find_single_byte_xor() {
 }
 
 void repeating_xor(){
-  /* char string[] = "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"; */
-  /* char key[] = "ICE"; */
   char string[] = "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal";
-  char key[] = "BERT";
+  char key[] = "ICE";
   char *result;
 
   result = repeating_key_xor(string, strlen(string), key, strlen(key));
@@ -160,7 +158,13 @@ void break_repeating_xor() {
   ssize_t read;
   char *bytes, *input_string = NULL;
   size_t length = 0;
+  size_t num_bytes, num_blocks;
+  char **blocks;
+  char *key, *transposed_buffer;
   FILE *fp;
+  char *result_key, *decrypted_text;
+  unsigned char testkey, bestkey;
+  float score, maxscore;
 
   fp = fopen("6.hex", "r");
   if (fp == NULL) {
@@ -170,11 +174,65 @@ void break_repeating_xor() {
 
   read = getline(&input_string, &length, fp);
 
+  num_bytes = strlen(input_string)/2;
+
   bytes = hex_to_bytes(input_string, strlen(input_string));
 
-  keysize = find_key_size(bytes, strlen(input_string)/2);
+  keysize = find_key_size(bytes, num_bytes);
 
-  printf("Keysize: %d\n", keysize);
+  blocks = create_blocks(bytes, num_bytes, keysize);
+  num_blocks = num_bytes/keysize;
+
+  printf("Keysize: %d, number of blocks: %lu\n", keysize, num_blocks);
+
+  key = malloc(keysize);
+
+  if (key == NULL) {
+    printf("break_repeating_xor(): could not allocate memory\n");
+    return;
+  }
+
+  for (unsigned int i = 0; i < keysize; i++) {
+    transposed_buffer = transpose_blocks(blocks, keysize, num_blocks, i);
+
+    maxscore = 0;
+    for (testkey = 0x00; testkey < 0xFF; testkey++) {
+      result_key = xor_single_char(transposed_buffer, num_blocks, testkey);
+      score = english_similarity_score(result_key);
+
+      if (score > maxscore){
+        maxscore = score;
+        bestkey = testkey;
+      }
+
+      free(result_key);
+    }
+
+    decrypted_text = xor_single_char(transposed_buffer, num_blocks, bestkey);
+
+    printf("%d: %02x, %c, score: %f\n", i, bestkey, bestkey, maxscore);
+    /* printf("%d: Text: %.*s\n------------------------------------------------------------\n", i, (int)num_blocks, decrypted_text); */
+    key[i] = bestkey;
+    free(decrypted_text);
+    free(transposed_buffer);
+  }
+
+  /* transposed_buffer = transpose_blocks(blocks, keysize, num_blocks, 11); */
+
+  /* printf("%.*s\n", num_blocks, xor_single_char(transposed_buffer, num_blocks, 'E')); */
+  /* printf("%.*s\n", num_blocks, xor_single_char(transposed_buffer, num_blocks, 'X')); */
+
+  /* free(transposed_buffer); */
+
+  printf("Key:\n%.*s\n\n", (int)keysize, key);
+
+  decrypted_text = repeating_key_xor(bytes, num_bytes, key, keysize);
+
+  printf("Decrypted text:\n\n%.*s\n", (int)num_bytes, decrypted_text);
+
+  cleanup_blocks(blocks, num_blocks);
+  free(input_string);
+  free(bytes);
 }
 
 int main(void) {
@@ -182,7 +240,7 @@ int main(void) {
 
   printf("Cryptopals Set 1\n");
   do {
-    printf("================\n");
+    printf("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
     printf("1. hex to base64\n");
     printf("2. xor of 2 buffers\n");
     printf("3. brute-force single key xor\n");

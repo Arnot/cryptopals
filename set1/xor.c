@@ -68,7 +68,7 @@ unsigned int find_key_size(char *buffer, size_t num_bytes) {
     if (avg_distance/size < min_normalized_dist) {
       min_normalized_dist = avg_distance/size;
       min_size = size;
-      printf("New minimum: %f, %d\n", avg_distance/size, min_size);
+      printf("New best keysize: %f, %d\n", avg_distance/size, min_size);
     }
   }
 
