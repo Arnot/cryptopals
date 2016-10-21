@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <openssl/conf.h>
+#include <openssl/evp.h>
+#include <openssl/err.h>
 
 void xor() {
   size_t length1 = 0;
@@ -210,19 +213,10 @@ void break_repeating_xor() {
 
     decrypted_text = xor_single_char(transposed_buffer, num_blocks, bestkey);
 
-    printf("%d: %02x, %c, score: %f\n", i, bestkey, bestkey, maxscore);
-    /* printf("%d: Text: %.*s\n------------------------------------------------------------\n", i, (int)num_blocks, decrypted_text); */
     key[i] = bestkey;
     free(decrypted_text);
     free(transposed_buffer);
   }
-
-  /* transposed_buffer = transpose_blocks(blocks, keysize, num_blocks, 11); */
-
-  /* printf("%.*s\n", num_blocks, xor_single_char(transposed_buffer, num_blocks, 'E')); */
-  /* printf("%.*s\n", num_blocks, xor_single_char(transposed_buffer, num_blocks, 'X')); */
-
-  /* free(transposed_buffer); */
 
   printf("Key:\n%.*s\n\n", (int)keysize, key);
 
@@ -233,6 +227,56 @@ void break_repeating_xor() {
   cleanup_blocks(blocks, num_blocks);
   free(input_string);
   free(bytes);
+}
+
+void decrypt_aes_ecb() {
+  unsigned char *key = (unsigned char *)"YELLOW SUBMARINE", *decrypted_text;
+  ssize_t read, num_bytes;
+  size_t length = 0;
+  int decrypt_len;
+  char *input_string = NULL, *bytes;
+  FILE *fp;
+  EVP_CIPHER_CTX *ctx;
+
+  fp = fopen("7.hex", "r");
+  if (fp == NULL) {
+    printf("Challenge 7: Could not open file!\n");
+    return;
+  }
+  read = getline(&input_string, &length, fp);
+
+  num_bytes = strlen(input_string)/2;
+
+  bytes = hex_to_bytes(input_string, strlen(input_string));
+
+  decrypted_text = malloc(num_bytes);
+  if (decrypted_text == NULL) {
+    printf("decrypt_aes_ecb(): error allocating memory\n");
+    return;
+  }
+
+  ERR_load_crypto_strings();
+  OpenSSL_add_all_algorithms();
+  OPENSSL_config(NULL);
+
+  if (!(ctx = EVP_CIPHER_CTX_new())) {
+    printf("Error initializing OPENSSL EVP context\n");
+    return;
+  }
+
+  EVP_DecryptInit_ex(ctx, EVP_aes_128_ecb(), NULL, key, NULL);
+
+  EVP_DecryptUpdate(ctx, decrypted_text, &decrypt_len, bytes, num_bytes);
+
+  EVP_DecryptFinal_ex(ctx, decrypted_text + decrypt_len, &decrypt_len);
+
+  printf("%s\n", (char*)decrypted_text);
+
+  EVP_CIPHER_CTX_free(ctx);
+  EVP_cleanup();
+  ERR_free_strings();
+
+  return;
 }
 
 int main(void) {
@@ -247,6 +291,7 @@ int main(void) {
     printf("4. find most-English decrypted sentence\n");
     printf("5. repeating-key xor\n");
     printf("6. break repeating-key xor\n");
+    printf("7. decrypt AES in ECB mode\n");
     printf("0. quit\n");
 
     if (scanf("%d", &command) == 0) {
@@ -271,6 +316,9 @@ int main(void) {
       break;
     case 6:
       break_repeating_xor();
+      break;
+    case 7:
+      decrypt_aes_ecb();
       break;
     default:
       printf("Bye!\n");
