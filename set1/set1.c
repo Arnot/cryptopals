@@ -6,8 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void xor
-    () {
+void xor() {
       size_t length1 = 0;
       size_t length2 = 0;
       ssize_t read1, read2;
@@ -43,7 +42,7 @@ void xor
       free(result);
     }
 
-    void single_byte_xor() {
+void single_byte_xor() {
   /* size_t length = 0; */
   ssize_t read;
   ssize_t num_bytes;
